@@ -1,5 +1,5 @@
 from random import randint as r
-from random import choice as c
+from random import sample 
 import Firstnames, Patronymic, Lastnames, doctors, symptoms, analyzes
 from datetime import datetime, timedelta
 
@@ -37,10 +37,10 @@ def generate_name():
             return Firstnames.male_names[r(0, len(Firstnames.male_names) - 1)], Lastnames.surnames[r(0, len(Lastnames.surnames) - 1)], Patronymic.male_patronymics[r(0, len(Patronymic.male_patronymics) - 1)]
         
 def generate_doctors():
-    return doctors.doctor_specialties[r(0, len(doctors.doctor_specialties))]
+    return doctors.doctor_specialties[r(0, len(doctors.doctor_specialties) - 1)]
 
 def generate_symp():
-    return [c(symptoms, r(1, 11))]
+    return [sample(symptoms.symptoms, r(1, 11))] #11
 
 def generate_an():
-    return analyzes.medical_tests[r(0, len(analyzes.medical_tests))]
+    return [sample(analyzes.medical_tests, r(1, 6))] #6
