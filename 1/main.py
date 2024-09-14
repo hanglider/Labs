@@ -1,10 +1,3 @@
-
-
-###########################################################
-###у меня почему-то прога стала в 3 раза дольше работать###
-###########################################################
-
-
 from random import randint as r
 from random import choice
 import generic as g
@@ -100,7 +93,7 @@ def game_parallel(x):
 
     t = pd.DataFrame(a)
     seconds = time() - f
-    #t.to_excel('data_set.xlsx', index=False, engine='openpyxl')  ###
+    t.to_excel('data_set.xlsx', index=False, engine='openpyxl')  ###
     
     minutes, sec = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
@@ -108,4 +101,4 @@ def game_parallel(x):
        
 
 if __name__ == "__main__":
-    game_parallel(100_000)
+    game_parallel(200_000)

@@ -3,12 +3,6 @@ from random import sample
 import Firstnames, Patronymic, Lastnames, doctors, symptoms, analyzes
 from datetime import datetime, timedelta
 
-
-###########################################################
-###у меня почему-то прога стала в 3 раза дольше работать###
-###########################################################
-
-
 def generate_passport():
     country = ['Россия', 'Беларусь', 'Казахстан'][r(0, 2)]
     if country == 'Россия':
