@@ -11,6 +11,7 @@ import generic as g
 import pandas as pd
 import hashlib
 from time import time
+from datetime import timedelta
 
 stack_uniqueness_for_passport_data = []
 stack_uniqueness_for_snils = []
@@ -38,10 +39,14 @@ class ID:
             self.number = number
 
     class medecine:
-        def __init__(self, passport):
+        def __init__(self, passport, last_analysis_time=None):
             self.symptoms = g.generate_symp()
             self.doctor = g.generate_doctors()
             self.date, self.date_offset = g.generate_visit_time()
+            if last_analysis_time:
+                min_visit_time = last_analysis_time + timedelta(hours=24)
+                if self.date < min_visit_time:
+                    self.date = min_visit_time
             self.analyzes = g.generate_an()
             self.bank_card = self.Card(passport).__dict__  
 
@@ -60,9 +65,12 @@ class ID:
 
     def gen_history(self, passport):
         mc = []
+        last_analysis_time = None
         visits = r(1, 6) #6
         for _ in range(visits):
-            mc.append(self.medecine(passport).__dict__)
+            medicine_entry = self.medecine(passport, last_analysis_time).__dict__
+            mc.append(medicine_entry)            
+            last_analysis_time = medicine_entry['date_offset'] 
         return mc 
     
 def game(x):
@@ -83,4 +91,4 @@ def game(x):
     
 #for i in range(0, 5):
 #    game(10**i)
-game(10_0)  
+game(1_00)  
