@@ -12,6 +12,7 @@ import pandas as pd
 import hashlib
 from time import time
 from datetime import timedelta, datetime
+from tqdm import tqdm
 
 stack_uniqueness_for_passport_data = []
 stack_uniqueness_for_snils = []
@@ -84,7 +85,8 @@ def game(x):
     f = time()
     a = []
     strings = x*5
-    for i in range(strings):
+
+    for _ in tqdm(range(strings), desc="Progress"):
         a.append(ID().__dict__)
 
     t = pd.DataFrame(a)
@@ -96,6 +98,6 @@ def game(x):
     hours, minutes = divmod(minutes, 60)
     print(f"{int(hours)}h {int(minutes)}m {sec:.2f}s {strings} strings")
     
-#for i in range(0, 5):
-#    game(10**i)
-game(10_000)  
+for i in range(0, 5):
+    game(10**i)
+#game(10_0)  
