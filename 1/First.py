@@ -1,7 +1,7 @@
 
 
 ###########################################################
-###у меня почему-то прога стала в 4 раза дольше работать###
+###у меня почему-то прога стала в 3 раза дольше работать###
 ###########################################################
 
 
@@ -11,7 +11,7 @@ import generic as g
 import pandas as pd
 import hashlib
 from time import time
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 stack_uniqueness_for_passport_data = []
 stack_uniqueness_for_snils = []
@@ -43,6 +43,13 @@ class ID:
             self.symptoms = g.generate_symp()
             self.doctor = g.generate_doctors()
             self.date, self.date_offset = g.generate_visit_time()
+
+            if isinstance(self.date, str):
+                self.date = datetime.strptime(self.date, "%Y-%m-%d %H:%M")
+
+            if isinstance(self.date_offset, str):
+                self.date_offset = datetime.strptime(self.date_offset, "%Y-%m-%d %H:%M")
+            
             if last_analysis_time:
                 min_visit_time = last_analysis_time + timedelta(hours=24)
                 if self.date < min_visit_time:
@@ -81,14 +88,14 @@ def game(x):
         a.append(ID().__dict__)
 
     t = pd.DataFrame(a)
+    seconds = time() - f
 
     t.to_excel('data_set.xlsx', index=False, engine='openpyxl') ###
 
-    seconds = time() - f
     minutes, sec = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     print(f"{int(hours)}h {int(minutes)}m {sec:.2f}s {strings} strings")
     
 #for i in range(0, 5):
 #    game(10**i)
-game(1_00)  
+game(10_000)  
