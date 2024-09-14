@@ -4,12 +4,22 @@ import pandas as pd
 import hashlib
 from time import time
 
+stack_uniqueness_for_passport_data = []
+stack_uniqueness_for_snils = []
+
 class ID:
     def __init__(self):        
         self.Firstname, self.Lastname, self.Patronymic = g.generate_name()
         x = self.Pasport(*g.generate_passport())
+        while x in stack_uniqueness_for_passport_data:
+            x = self.Pasport(*g.generate_passport())
+        stack_uniqueness_for_passport_data.append(x)
         self.Passport_data = x.__dict__
-        self.snils = g.generate_snils()
+        r = g.generate_snils()
+        while r in stack_uniqueness_for_snils:
+            r = g.generate_snils()
+        stack_uniqueness_for_snils.append(r)
+        self.snils = r
         self.filled = 1
         self.med_card = self.gen_history(x)
 
@@ -52,7 +62,7 @@ def game(x):
 
     t = pd.DataFrame(a)
 
-    t.to_excel('data_set.xlsx', index=False, engine='openpyxl') ###
+    #.to_excel('data_set.xlsx', index=False, engine='openpyxl') ###
 
     seconds = time() - f
     minutes, sec = divmod(seconds, 60)
