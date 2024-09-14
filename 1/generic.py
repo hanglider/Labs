@@ -3,6 +3,12 @@ from random import sample
 import Firstnames, Patronymic, Lastnames, doctors, symptoms, analyzes
 from datetime import datetime, timedelta
 
+
+###########################################################
+###у меня почему-то прога стала в 4 раза дольше работать###
+###########################################################
+
+
 def generate_passport():
     country = ['Россия', 'Беларусь', 'Казахстан'][r(0, 2)]
     if country == 'Россия':
@@ -24,11 +30,31 @@ def generate_snils():
     str(r(10, 99))
 )
 
-def generate_visit_time():
+def generate_visit_time1():
     start_time = datetime.strptime("08:00", "%H:%M")
     end_time = datetime.strptime("18:00", "%H:%M")
     random_time = start_time + timedelta(minutes = r(0, (end_time - start_time).seconds // 60))
     return random_time.strftime("%H:%M")
+
+def generate_visit_time():
+    start_time = datetime.strptime("08:00", "%H:%M")
+    end_time = datetime.strptime("18:00", "%H:%M")
+    random_time = start_time + timedelta(minutes=r(0, (end_time - start_time).seconds // 60))
+    year = 2023
+    month = r(1, 12)
+    if month in [1, 3, 5, 7, 8, 10, 12]:
+        day = r(1, 31)
+    elif month in [4, 6, 9, 11]:
+        day = r(1, 30)
+    else:
+        day = r(1, 28)
+
+    visit_time_1 = datetime(year, month, day, random_time.hour, random_time.minute)
+    
+    hours_offset = r(24, 72)
+    visit_time_2 = visit_time_1 + timedelta(hours=hours_offset)
+    
+    return visit_time_1.strftime("%Y-%m-%d %H:%M"), visit_time_2.strftime("%Y-%m-%d %H:%M")
 
 def generate_name():
         if r(0, 1):

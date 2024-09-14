@@ -1,3 +1,10 @@
+
+
+###########################################################
+###у меня почему-то прога стала в 4 раза дольше работать###
+###########################################################
+
+
 from random import randint as r
 import generic as g
 import pandas as pd
@@ -33,8 +40,7 @@ class ID:
         def __init__(self, passport):
             self.symptoms = g.generate_symp()
             self.doctor = g.generate_doctors()
-            self.date = g.generate_visit_time()
-            self.date_offset = None 
+            self.date, self.date_offset = g.generate_visit_time()
             self.analyzes = g.generate_an()
             self.bank_card = self.generate_bank_card(passport)
 
@@ -62,7 +68,7 @@ def game(x):
 
     t = pd.DataFrame(a)
 
-    #.to_excel('data_set.xlsx', index=False, engine='openpyxl') ###
+    t.to_excel('data_set.xlsx', index=False, engine='openpyxl') ###
 
     seconds = time() - f
     minutes, sec = divmod(seconds, 60)
