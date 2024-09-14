@@ -6,6 +6,7 @@
 
 
 from random import randint as r
+from random import choice
 import generic as g
 import pandas as pd
 import hashlib
@@ -42,15 +43,20 @@ class ID:
             self.doctor = g.generate_doctors()
             self.date, self.date_offset = g.generate_visit_time()
             self.analyzes = g.generate_an()
-            self.bank_card = self.generate_bank_card(passport)
+            self.bank_card = self.Card(passport).__dict__  
 
-        def generate_bank_card(self, passport):
-            passport_data = f"{passport.series}{passport.number}"
-            hash_object = hashlib.sha256(passport_data.encode())
-            hash_hex = hash_object.hexdigest()
-            bank_card_number = int(hash_hex[:16], 16) % (10**16)
-            return bank_card_number
-            
+        class Card:
+            def __init__(self, passport):
+                self.pay_system = choice(['SWIFT', 'TON'])
+                self.bank = choice(['Сбер', 'Т-банк'])
+                self.bank_card_number = self.generate_bank_card_number(passport)
+
+            def generate_bank_card_number(self, passport):
+                passport_data = f"{passport.series}{passport.number}"
+                hash_object = hashlib.sha256(passport_data.encode())
+                hash_hex = hash_object.hexdigest()
+                bank_card_number = int(hash_hex[:16], 16) % (10**16)  
+                return bank_card_number                
 
     def gen_history(self, passport):
         mc = []
@@ -77,4 +83,4 @@ def game(x):
     
 #for i in range(0, 5):
 #    game(10**i)
-game(10_000)  
+game(10_0)  
