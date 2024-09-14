@@ -30,12 +30,6 @@ def generate_snils():
     str(r(10, 99))
 )
 
-def generate_visit_time1():
-    start_time = datetime.strptime("08:00", "%H:%M")
-    end_time = datetime.strptime("18:00", "%H:%M")
-    random_time = start_time + timedelta(minutes = r(0, (end_time - start_time).seconds // 60))
-    return random_time.strftime("%H:%M")
-
 def generate_visit_time():
     start_time = datetime.strptime("08:00", "%H:%M")
     end_time = datetime.strptime("18:00", "%H:%M")
@@ -69,4 +63,5 @@ def generate_symp():
     return [sample(symptoms.symptoms, r(1, 11))] #11
 
 def generate_an():
-    return [sample(analyzes.medical_tests, r(1, 6))] #6
+    selected_tests = sample(list(analyzes.medical_tests_with_prices.items()), r(1, 6))
+    return selected_tests

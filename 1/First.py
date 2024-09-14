@@ -47,8 +47,8 @@ class ID:
 
         class Card:
             def __init__(self, passport):
-                self.pay_system = choice(['SWIFT', 'TON'])
-                self.bank = choice(['Сбер', 'Т-банк'])
+                self.pay_system = choice(['SWIFT', 'TON', 'TON']) #можно настроить вероятность
+                self.bank = choice(['Сбер', 'Т-банк', 'Сбер'])    #можно настроить вероятность
                 self.bank_card_number = self.generate_bank_card_number(passport)
 
             def generate_bank_card_number(self, passport):
