@@ -13,6 +13,7 @@ import hashlib
 from time import time
 from datetime import timedelta, datetime
 from tqdm import tqdm
+import multiprocessing
 
 stack_uniqueness_for_passport_data = []
 stack_uniqueness_for_snils = []
@@ -81,23 +82,30 @@ class ID:
             last_analysis_time = medicine_entry['date_offset'] 
         return mc 
     
-def game(x):
-    f = time()
-    a = []
-    strings = x*5
+def generate_id_data(n):
+    return [ID().__dict__ for _ in tqdm(range(n), desc="Progress")]
 
-    for _ in tqdm(range(strings), desc="Progress"):
-        a.append(ID().__dict__)
+def game_parallel(x):
+    f = time()
+    num_workers = multiprocessing.cpu_count() 
+    strings = x * 5
+    chunk_size = strings // num_workers
+
+    with multiprocessing.Pool(num_workers) as pool:
+        results = pool.map(generate_id_data, [chunk_size] * num_workers)
+
+    a = []
+    for result in results:
+        a.extend(result)
 
     t = pd.DataFrame(a)
     seconds = time() - f
-
-    t.to_excel('data_set.xlsx', index=False, engine='openpyxl') ###
-
+    #t.to_excel('data_set.xlsx', index=False, engine='openpyxl')  ###
+    
     minutes, sec = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     print(f"{int(hours)}h {int(minutes)}m {sec:.2f}s {strings} strings")
-    
-for i in range(0, 5):
-    game(10**i)
-#game(10_0)  
+       
+
+if __name__ == "__main__":
+    game_parallel(100_000)
