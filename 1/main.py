@@ -7,6 +7,8 @@ from time import time
 from datetime import timedelta, datetime
 from tqdm import tqdm
 import multiprocessing
+import dask.dataframe as dd
+import numpy as np
 
 stack_uniqueness_for_passport_data = []
 stack_uniqueness_for_snils = []
@@ -15,14 +17,14 @@ class ID:
     def __init__(self):        
         self.Firstname, self.Lastname, self.Patronymic = g.generate_name()
         x = self.Pasport(*g.generate_passport())
-        while x in stack_uniqueness_for_passport_data:
-            x = self.Pasport(*g.generate_passport())
-        stack_uniqueness_for_passport_data.append(x)
+        #while x in stack_uniqueness_for_passport_data:
+        #    x = self.Pasport(*g.generate_passport())
+        #stack_uniqueness_for_passport_data.append(x)
         self.Passport_data = x.__dict__
         r = g.generate_snils()
-        while r in stack_uniqueness_for_snils:
-            r = g.generate_snils()
-        stack_uniqueness_for_snils.append(r)
+        #while r in stack_uniqueness_for_snils:
+        #    r = g.generate_snils()
+        #stack_uniqueness_for_snils.append(r)
         self.snils = r
         self.filled = 1
         self.med_card = self.gen_history(x)
@@ -77,11 +79,18 @@ class ID:
     
 def generate_id_data(n):
     return [ID().__dict__ for _ in tqdm(range(n), desc="Progress")]
+    #return [ID().__dict__ for _ in range(n)]
 
-def game_parallel(x):
+def show_time(f):
+    seconds = time() - f
+    minutes, sec = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    print(f"{int(minutes)}m {sec:.2f}s")
+        
+def game_parallel(x):                                  #####FIRST
     f = time()
     num_workers = multiprocessing.cpu_count() 
-    strings = x * 5
+    strings = x
     chunk_size = strings // num_workers
 
     with multiprocessing.Pool(num_workers) as pool:
@@ -91,14 +100,110 @@ def game_parallel(x):
     for result in results:
         a.extend(result)
 
+    print(f"Now we have data")
+    show_time(f)
+
     t = pd.DataFrame(a)
-    seconds = time() - f
+
+    print(f"Now we have data_frame")
+    show_time(f)
+    print(f"Saving...")
+
     t.to_excel('data_set.xlsx', index=False, engine='openpyxl')  ###
+
+    print(f"Finish", end=" ")
+    show_time(f)
+
+def generate_id_data_as_columns(n):
     
-    minutes, sec = divmod(seconds, 60)
-    hours, minutes = divmod(minutes, 60)
-    print(f"{int(hours)}h {int(minutes)}m {sec:.2f}s {strings} strings")
-       
+    #"""Генерация данных в формате столбцов (numpy массивов)"""
+    firstnames, lastnames, patronymics, passports, snils, med_cards = [], [], [], [], [], []
+
+    for _ in tqdm(range(n), desc="Progress"):
+    #for _ in range(n):
+        id_obj = ID()
+        firstnames.append(id_obj.Firstname)
+        lastnames.append(id_obj.Lastname)
+        patronymics.append(id_obj.Patronymic)
+        passports.append(str(id_obj.Passport_data))
+        snils.append(id_obj.snils)
+        med_cards.append(str(id_obj.med_card))  # преобразуем сложные данные в строки для примера
+
+    # Преобразуем данные в numpy массивы
+    data = {
+        'Firstname': np.array(firstnames, dtype='object'),
+        'Lastname': np.array(lastnames, dtype='object'),
+        'Patronymic': np.array(patronymics, dtype='object'),
+        'Passport': np.array(passports, dtype='object'),
+        'SNILS': np.array(snils, dtype='object'),
+        'Med_Card': np.array(med_cards, dtype='object')
+    }
+
+    return data
+
+def game_parallel_optimized(x):
+    f = time()
+    num_workers = multiprocessing.cpu_count()  
+    strings = x
+    chunk_size = strings // num_workers
+
+    with multiprocessing.Pool(num_workers) as pool:
+        results = pool.map(generate_id_data_as_columns, [chunk_size] * num_workers)
+
+    # Объединение данных из всех процессов
+    combined_data = {key: np.concatenate([result[key] for result in results]) for key in results[0]}
+
+    print(f"Now we have data", end=" ")
+    show_time(f)
+
+    # Быстрое создание DataFrame из заранее подготовленных данных
+    t = pd.DataFrame(combined_data)
+
+    print(f"Now we have data_frame", end=" ")
+    show_time(f)
+    print(f"Saving...")
+
+    t.to_excel('data_set.xlsx', index=False, engine='openpyxl')  ###
+
+    print(f"Finish", end=" ")
+    show_time(f)
+
+def game_dask(x):
+    f = time()
+    num_workers = multiprocessing.cpu_count()
+    strings = x
+    chunk_size = strings // num_workers
+
+    with multiprocessing.Pool(num_workers) as pool:
+        results = pool.map(generate_id_data_as_columns, [chunk_size] * num_workers)
+
+    combined_data = {key: np.concatenate([result[key] for result in results]) for key in results[0]}
+
+    print(f"Now we have data", end=" ")
+    show_time(f)    
+
+    # Создание Dask DataFrame
+    ddf = dd.from_pandas(pd.DataFrame(combined_data), npartitions=num_workers)
+
+    print(f"Now we have data_frame", end=" ")
+    show_time(f)  
+    print(f"Saving...")
+
+    # Запись в файл через Dask
+    ddf.to_parquet('data_set.parquet', engine='pyarrow')
+
+    print(f"Finish", end=" ")
+    show_time(f)
+
+k = 3
+n = 1_0_0
 
 if __name__ == "__main__":
-    game_parallel(200_000)
+    if k == 1:
+        game_parallel(n)
+        print()
+    elif k == 2:
+        game_parallel_optimized(n)
+        print()
+    elif k == 3:
+        game_dask(n)
