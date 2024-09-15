@@ -187,7 +187,7 @@ def game_dask(x):
 
     print(f"Now we have data_frame", end=" ")
     show_time(f)  
-    print(f"Saving")
+    print(f"Saving...")
 
     # Запись в файл через Dask
     ddf.to_parquet('data_set.parquet', engine='pyarrow')
@@ -195,14 +195,15 @@ def game_dask(x):
     print(f"Finish", end=" ")
     show_time(f)
 
-k = 1
+k = 3
+n = 1_0_0
 
 if __name__ == "__main__":
-    #if k == 1:
-    game_parallel(10_000)
-    print()
-    #elif k == 2:
-    game_parallel_optimized(10_000)
-    print()
-    #elif k == 3:
-    game_dask(10_000)
+    if k == 1:
+        game_parallel(n)
+        print()
+    elif k == 2:
+        game_parallel_optimized(n)
+        print()
+    elif k == 3:
+        game_dask(n)
