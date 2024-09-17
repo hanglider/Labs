@@ -86,7 +86,7 @@ if __name__ == "__main__":
     show_time(f)
     print(f"Saving...")
 
-    t.to_json('data_set.json', force_ascii=False, orient='records', lines=True, date_format='iso', date_unit='s')
+    t.to_json('C:\IT\Labs\Labs\waste\data_set.json', force_ascii=False, orient='records', lines=True, date_format='iso', date_unit='s')
 
     print(f"Finish", end=" ")
     show_time(f)
