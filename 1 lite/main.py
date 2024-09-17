@@ -80,7 +80,7 @@ def show_time(f):
 
 if __name__ == "__main__":
     f = time()
-    t = pd.DataFrame([ID().__dict__ for _ in tqdm(range(5_0), desc="Progress")])
+    t = pd.DataFrame([ID().__dict__ for _ in tqdm(range(50_000), desc="Progress")])
 
     print(f"Now we have data_frame", end=' ')
     show_time(f)

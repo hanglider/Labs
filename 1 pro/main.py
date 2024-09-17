@@ -10,10 +10,13 @@ import multiprocessing
 import dask.dataframe as dd
 import numpy as np
 
-const = int(1e16)
+const = 10**16
 
 stack_uniqueness_for_passport_data = set()
 stack_uniqueness_for_snils = set()
+
+symptoms_pool = [g.generate_symp() for _ in range(5000)]
+doctor_pool = [g.generate_doctors() for _ in range(50)]
 
 class ID:
     def __init__(self):        
@@ -39,8 +42,8 @@ class ID:
 
     class medecine:
         def __init__(self, passport, last_analysis_time=None):
-            self.symptoms = g.generate_symp()
-            self.doctor = g.generate_doctors()
+            self.symptoms = choice(symptoms_pool)
+            self.doctor = choice(doctor_pool)
             self.date, self.date_offset = g.generate_visit_time()
 
             if isinstance(self.date, str):
@@ -99,7 +102,6 @@ def generate_id_data_as_columns(n):
         snils.append(id_obj.snils)
         med_cards.append(str(id_obj.med_card))  # преобразуем сложные данные в строки для примера
 
-    # Преобразуем данные в numpy массивы
     data = {
         'Firstname': np.array(firstnames, dtype='object'),
         'Lastname': np.array(lastnames, dtype='object'),
@@ -120,13 +122,11 @@ def game_parallel_optimized(x):
     with multiprocessing.Pool(num_workers) as pool:
         results = pool.map(generate_id_data_as_columns, [chunk_size] * num_workers)
 
-    # Объединение данных из всех процессов
     combined_data = {key: np.concatenate([result[key] for result in results]) for key in results[0]}
 
     print(f"Now we have data", end=" ")
     show_time(f)
 
-    # Быстрое создание DataFrame из заранее подготовленных данных
     t = pd.DataFrame(combined_data)
 
     print(f"Now we have data_frame", end=" ")
@@ -140,7 +140,7 @@ def game_parallel_optimized(x):
 
 def game_dask(x):
     f = time()
-    num_workers = multiprocessing.cpu_count()
+    num_workers = 12#multiprocessing.cpu_count()
     strings = x
     chunk_size = strings // num_workers
 
@@ -152,18 +152,18 @@ def game_dask(x):
     print(f"Now we have data", end=" ")
     show_time(f)    
 
-    # Создание Dask DataFrame
     ddf = dd.from_pandas(pd.DataFrame(combined_data), npartitions=num_workers)
 
     print(f"Now we have data_frame", end=" ")
     show_time(f)  
     print(f"Saving...")
 
-    # Запись в файл через Dask
     ddf.to_parquet('data_set.parquet', engine='pyarrow')
 
     print(f"Finish", end=" ")
     show_time(f)
+
+
 
 if __name__ == "__main__":
     game_dask(50_000)
