@@ -14,14 +14,14 @@ class ID:
     def __init__(self):        
         self.Firstname, self.Lastname, self.Patronymic = g.generate_name()
         x = self.Pasport(*g.generate_passport())
-        while x in stack_uniqueness_for_passport_data:
-            x = self.Pasport(*g.generate_passport())
-        stack_uniqueness_for_passport_data.add(x)
+        #while x in stack_uniqueness_for_passport_data:
+        #    x = self.Pasport(*g.generate_passport())
+        #stack_uniqueness_for_passport_data.add(x)
         self.Passport_data = x.__dict__
         r = g.generate_snils()
-        while r in stack_uniqueness_for_snils:
-            r = g.generate_snils()
-        stack_uniqueness_for_snils.add(r)
+        #while r in stack_uniqueness_for_snils:
+        #    r = g.generate_snils()
+        #stack_uniqueness_for_snils.add(r)
         self.snils = r
         self.med_card = self.gen_history(x)
 
@@ -52,8 +52,8 @@ class ID:
 
         class Card:
             def __init__(self, passport):
-                self.pay_system = choice(['SWIFT', 'TON', 'TON']) #можно настроить вероятность
-                self.bank = choice(['Сбер', 'Т-банк', 'Сбер'])    #можно настроить вероятность
+                self.pay_system = g.get_pay_system() 
+                self.bank = g.get_bank()
                 self.bank_card_number = self.generate_bank_card_number(passport)
 
             def generate_bank_card_number(self, passport):

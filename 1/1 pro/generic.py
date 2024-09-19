@@ -24,6 +24,22 @@ def generate_snils():
     str(r(10, 99))
 )
 
+def get_bank():
+    x = r(1, 100)
+    if x < 21:
+        return "Сбер"
+    elif x < 51:
+        return "Т-банк"
+    return "ВТБ"
+
+def get_pay_system():
+    x = r(1, 100)
+    if x < 21:
+        return "VISA"
+    elif x < 51:
+        return "MASTERCARD"
+    return "МИР"
+
 def generate_visit_time():
     start_time = datetime.strptime("08:00", "%H:%M")
     end_time = datetime.strptime("18:00", "%H:%M")
@@ -54,8 +70,8 @@ def generate_doctors():
     return doctors.doctor_specialties[r(0, len(doctors.doctor_specialties) - 1)]
 
 def generate_symp():
-    return [sample(symptoms.symptoms, r(1, 11))] #11
+    return [sample(symptoms.symptoms, r(1, 10))] 
 
 def generate_an():
-    selected_tests = sample(list(analyzes.medical_tests_with_prices.items()), r(1, 6))
+    selected_tests = sample(list(analyzes.medical_tests_with_prices.items()), r(1, 5))
     return selected_tests
