@@ -1,14 +1,18 @@
 from random import randint as r
 from random import choice
+from random import sample
 import generic as g
 import pandas as pd
 import zlib
 from time import time
 from datetime import timedelta, datetime
 from tqdm import tqdm
+import doctors
 
 stack_uniqueness_for_passport_data = set()
 stack_uniqueness_for_snils = set()
+banki = []
+pay_system = []
 
 class ID:
     def __init__(self):        
@@ -33,8 +37,9 @@ class ID:
 
     class medecine:
         def __init__(self, passport, last_analysis_time=None):
-            self.symptoms = g.generate_symp()
-            self.doctor = g.generate_doctors()
+            self.doctor = choice(list(doctors.doctor_symptoms.keys()))
+            self.symptoms = sample(doctors.doctor_symptoms[self.doctor], r(1, 2))#self.symptoms = g.generate_symp()
+            #self.doctor = choice(list(doctors.doctor_symptoms.keys()))#self.doctor = g.generate_doctors()
             self.date, self.date_offset = g.generate_visit_time()
 
             if isinstance(self.date, str):
@@ -78,8 +83,51 @@ def show_time(f):
     hours, minutes = divmod(minutes, 60)
     print(f"{int(minutes)}m {sec:.2f}s")
 
+def get_bank():
+    global banki  # Указываем, что мы изменяем глобальную переменную
+    bank = ["Сбер", "Т-банк", "ВТБ"]
+    d = {}
+    print(f"Указывайте число от 0 до 100 для каждого банка. Общая сумма должна быть 100.")
+    total = 0
+
+    for key in bank:
+        probability = int(input(f"Какую вероятность вы хотите у {key}: "))
+        d[key] = probability
+        total += probability
+
+    if total != 100:
+        print(f"Ошибка: сумма вероятностей должна быть равна 100. Сейчас: {total}")
+        return get_bank()
+
+    banki = []
+    for key in d.keys():
+        banki += [key for _ in range(d[key])]
+
+def get_pay_system():
+    global pay_system  # Указываем, что мы изменяем глобальную переменную
+    bank = ["МИР", "VISA", "MASTERCARD"]
+    d = {}
+    print(f"Указывайте число от 0 до 100 для каждой платежной системы. Общая сумма должна быть 100.")
+    total = 0
+
+    for key in bank:
+        probability = int(input(f"Какую вероятность вы хотите у {key}: "))
+        d[key] = probability
+        total += probability
+
+    if total != 100:
+        print(f"Ошибка: сумма вероятностей должна быть равна 100. Сейчас: {total}")
+        return get_pay_system()
+
+    pay_system = []
+    for key in d.keys():
+        pay_system += [key for _ in range(d[key])]
+
+
 if __name__ == "__main__":
     f = time()
+    get_bank()
+    get_pay_system()
     t = pd.DataFrame([ID().__dict__ for _ in tqdm(range(50_000), desc="Progress")])
 
     print(f"Now we have data_frame", end=' ')
@@ -90,3 +138,4 @@ if __name__ == "__main__":
 
     print(f"Finish", end=" ")
     show_time(f)
+    print(t.head())
