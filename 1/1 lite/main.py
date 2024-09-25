@@ -4,28 +4,31 @@ from random import sample
 import generic as g
 import pandas as pd
 import zlib
+import hashlib
 from time import time
 from datetime import timedelta, datetime
 from tqdm import tqdm
 import doctors
+import xml.etree.ElementTree as ET
 
 stack_uniqueness_for_passport_data = set()
 stack_uniqueness_for_snils = set()
 banki = []
 pay_system = []
+const = 10*16
 
 class ID:
     def __init__(self):        
         self.Firstname, self.Lastname, self.Patronymic = g.generate_name()
         x = self.Pasport(*g.generate_passport())
-        #while x in stack_uniqueness_for_passport_data:
-        #    x = self.Pasport(*g.generate_passport())
-        #stack_uniqueness_for_passport_data.add(x)
+        while x in stack_uniqueness_for_passport_data:
+            x = self.Pasport(*g.generate_passport())
+        stack_uniqueness_for_passport_data.add(x)
         self.Passport_data = x.__dict__
         r = g.generate_snils()
-        #while r in stack_uniqueness_for_snils:
-        #    r = g.generate_snils()
-        #stack_uniqueness_for_snils.add(r)
+        while r in stack_uniqueness_for_snils:
+            r = g.generate_snils()
+        stack_uniqueness_for_snils.add(r)
         self.snils = r
         self.med_card = self.gen_history(x)
 
@@ -53,6 +56,7 @@ class ID:
                 if self.date < min_visit_time:
                     self.date = min_visit_time
             self.analyzes = g.generate_an()
+            self.total_analysis_cost = sum(analyze[1] for analyze in self.analyzes)
             self.bank_card = self.Card(passport).__dict__  
 
         class Card:
@@ -63,8 +67,9 @@ class ID:
 
             def generate_bank_card_number(self, passport):
                 passport_data = f"{passport.series}{passport.number}"
-                crc32_hash = zlib.crc32(passport_data.encode())  # Генерация CRC32 хеша
-                bank_card_number = crc32_hash % (10**16)   
+                hash_object = hashlib.sha256(passport_data.encode())
+                hash_hex = hash_object.hexdigest()
+                bank_card_number = int(hash_hex, 16) 
                 return bank_card_number                
 
     def gen_history(self, passport):
@@ -123,18 +128,63 @@ def get_pay_system():
     for key in d.keys():
         pay_system += [key for _ in range(d[key])]
 
+import xml.dom.minidom as minidom
+
+def dict_to_xml(tag, d):
+    """
+    Функция для конвертации словаря в XML.
+    :param tag: корневой тег
+    :param d: словарь с данными
+    :return: элемент XML
+    """
+    elem = ET.Element(tag)
+    for key, val in d.items():
+        child = ET.Element(key)
+        if isinstance(val, dict):
+            child.extend(list(dict_to_xml(key, val)))
+        elif isinstance(val, list):
+            for item in val:
+                if isinstance(item, dict):
+                    child.append(dict_to_xml(key, item))
+                else:
+                    subitem = ET.Element("item")
+                    subitem.text = str(item)
+                    child.append(subitem)
+        else:
+            child.text = str(val)
+        elem.append(child)
+    return elem
+
+def save_to_xml(data_frame, filepath):
+    """
+    Функция для сохранения записей из DataFrame в XML с отступами.
+    Каждая запись будет отдельно сохранена в формате с отступами.
+    """
+    for index, row in data_frame.iterrows():
+        record_elem = dict_to_xml("record", row.to_dict())
+
+        # Создание дерева и форматирование через minidom
+        rough_string = ET.tostring(record_elem, 'utf-8')
+        reparsed = minidom.parseString(rough_string)
+        pretty_xml = reparsed.toprettyxml(indent="  ")
+
+        # Открытие файла в режиме добавления
+        with open(filepath, 'a', encoding='utf-8') as f:
+            f.write(pretty_xml)
+
 
 if __name__ == "__main__":
     f = time()
     get_bank()
     get_pay_system()
-    t = pd.DataFrame([ID().__dict__ for _ in tqdm(range(50_000), desc="Progress")])
+    t = pd.DataFrame([ID().__dict__ for _ in tqdm(range(5_0), desc="Progress")])
 
     print(f"Now we have data_frame", end=' ')
     show_time(f)
     print(f"Saving...")
 
-    t.to_json('C:\IT\Labs\Labs\waste\data_set.json', force_ascii=False, orient='records', lines=True, date_format='iso', date_unit='s')
+    #t.to_json('C:\IT\Labs\Labs\waste\data_set.json', force_ascii=False, orient='records', lines=True, date_format='iso', date_unit='s')
+    save_to_xml(t, 'C:\\IT\\Labs\\Labs\\waste\\data_set.xml')
 
     print(f"Finish", end=" ")
     show_time(f)
