@@ -1,15 +1,14 @@
 from random import randint as r
-from random import choice
+from random import choice                           
 from random import sample
 import generic as g
-import pandas as pd
-import zlib
-import hashlib
-from time import time
-from datetime import timedelta, datetime
-from tqdm import tqdm
+import pandas as pd                                 
+import hashlib                                      
+from time import time                               
+from datetime import timedelta, datetime            
+from tqdm import tqdm                               
 import doctors
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET                  
 
 stack_uniqueness_for_passport_data = set()
 stack_uniqueness_for_snils = set()
@@ -38,11 +37,10 @@ class ID:
             self.series = series
             self.number = number
 
-    class medecine:
+    class Medecine:
         def __init__(self, passport, last_analysis_time=None):
             self.doctor = choice(list(doctors.doctor_symptoms.keys()))
-            self.symptoms = sample(doctors.doctor_symptoms[self.doctor], r(1, 2))#self.symptoms = g.generate_symp()
-            #self.doctor = choice(list(doctors.doctor_symptoms.keys()))#self.doctor = g.generate_doctors()
+            self.symptoms = sample(doctors.doctor_symptoms[self.doctor], r(1, 2))
             self.date, self.date_offset = g.generate_visit_time()
 
             if isinstance(self.date, str):
@@ -61,15 +59,15 @@ class ID:
 
         class Card:
             def __init__(self, passport):
-                self.pay_system = g.get_pay_system() 
-                self.bank = g.get_bank()
+                self.pay_system = choice(pay_system)
+                self.bank = choice(banki)
                 self.bank_card_number = self.generate_bank_card_number(passport)
 
             def generate_bank_card_number(self, passport):
                 passport_data = f"{passport.series}{passport.number}"
                 hash_object = hashlib.sha256(passport_data.encode())
                 hash_hex = hash_object.hexdigest()
-                bank_card_number = int(hash_hex, 16) 
+                bank_card_number = int(hash_hex, 16) % const
                 return bank_card_number                
 
     def gen_history(self, passport):
@@ -77,7 +75,7 @@ class ID:
         last_analysis_time = None
         visits = r(1, 6) #6
         for _ in range(visits):
-            medicine_entry = self.medecine(passport, last_analysis_time).__dict__
+            medicine_entry = self.Medecine(passport, last_analysis_time).__dict__
             mc.append(medicine_entry)            
             last_analysis_time = medicine_entry['date_offset'] 
         return mc 
@@ -89,7 +87,7 @@ def show_time(f):
     print(f"{int(minutes)}m {sec:.2f}s")
 
 def get_bank():
-    global banki  # Указываем, что мы изменяем глобальную переменную
+    global banki  
     bank = ["Сбер", "Т-банк", "ВТБ"]
     d = {}
     print(f"Указывайте число от 0 до 100 для каждого банка. Общая сумма должна быть 100.")
@@ -109,7 +107,7 @@ def get_bank():
         banki += [key for _ in range(d[key])]
 
 def get_pay_system():
-    global pay_system  # Указываем, что мы изменяем глобальную переменную
+    global pay_system  
     bank = ["МИР", "VISA", "MASTERCARD"]
     d = {}
     print(f"Указывайте число от 0 до 100 для каждой платежной системы. Общая сумма должна быть 100.")
@@ -174,18 +172,19 @@ def save_to_xml(data_frame, filepath):
 
 
 if __name__ == "__main__":
-    f = time()
+    print(f"Введити количество записей: ", end="")
+    n = int(input())
+    n = max(50_000, n)
     get_bank()
     get_pay_system()
-    t = pd.DataFrame([ID().__dict__ for _ in tqdm(range(5_0), desc="Progress")])
+    f = time()
+    t = pd.DataFrame([ID().__dict__ for _ in tqdm(range(n), desc="Progress")])
 
     print(f"Now we have data_frame", end=' ')
     show_time(f)
     print(f"Saving...")
 
-    #t.to_json('C:\IT\Labs\Labs\waste\data_set.json', force_ascii=False, orient='records', lines=True, date_format='iso', date_unit='s')
     save_to_xml(t, 'C:\\IT\\Labs\\Labs\\waste\\data_set.xml')
 
     print(f"Finish", end=" ")
     show_time(f)
-    print(t.head())

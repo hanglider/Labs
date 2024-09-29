@@ -24,22 +24,6 @@ def generate_snils():
     str(r(10, 99))
 )
 
-def get_bank():
-    x = r(1, 100)
-    if x < 21:
-        return "Сбер"
-    elif x < 51:
-        return "Т-банк"
-    return "ВТБ"
-
-def get_pay_system():
-    x = r(1, 100)
-    if x < 21:
-        return "VISA"
-    elif x < 51:
-        return "MASTERCARD"
-    return "МИР"
-
 def generate_visit_time():
     start_time = datetime.strptime("08:00", "%H:%M")
     end_time = datetime.strptime("18:00", "%H:%M")
