@@ -128,9 +128,51 @@ def get_pay_system():
 
 import xml.dom.minidom as minidom
 
+# def dict_to_xml(tag, d):
+#     """
+#     Функция для конвертации словаря в XML.
+#     :param tag: корневой тег
+#     :param d: словарь с данными
+#     :return: элемент XML
+#     """
+#     elem = ET.Element(tag)
+#     for key, val in d.items():
+#         child = ET.Element(key)
+#         if isinstance(val, dict):
+#             child.extend(list(dict_to_xml(key, val)))
+#         elif isinstance(val, list):
+#             for item in val:
+#                 if isinstance(item, dict):
+#                     child.append(dict_to_xml(key, item))
+#                 else:
+#                     subitem = ET.Element("item")
+#                     subitem.text = str(item)
+#                     child.append(subitem)
+#         else:
+#             child.text = str(val)
+#         elem.append(child)
+#     return elem
+
+# def save_to_xml(data_frame, filepath):
+#     """
+#     Функция для сохранения записей из DataFrame в XML с отступами.
+#     Каждая запись будет отдельно сохранена в формате с отступами.
+#     """
+#     for index, row in data_frame.iterrows():
+#         record_elem = dict_to_xml("record", row.to_dict())
+
+#         # Создание дерева и форматирование через minidom
+#         rough_string = ET.tostring(record_elem, 'utf-8')
+#         reparsed = minidom.parseString(rough_string)
+#         pretty_xml = reparsed.toprettyxml(indent="  ")
+
+#         # Открытие файла в режиме добавления
+#         with open(filepath, 'a', encoding='utf-8') as f:
+#             f.write(pretty_xml)
+
 def dict_to_xml(tag, d):
     """
-    Функция для конвертации словаря в XML.
+    Конвертирует словарь в XML.
     :param tag: корневой тег
     :param d: словарь с данными
     :return: элемент XML
@@ -138,43 +180,36 @@ def dict_to_xml(tag, d):
     elem = ET.Element(tag)
     for key, val in d.items():
         child = ET.Element(key)
-        if isinstance(val, dict):
-            child.extend(list(dict_to_xml(key, val)))
-        elif isinstance(val, list):
-            for item in val:
-                if isinstance(item, dict):
-                    child.append(dict_to_xml(key, item))
-                else:
-                    subitem = ET.Element("item")
-                    subitem.text = str(item)
-                    child.append(subitem)
-        else:
-            child.text = str(val)
+        child.text = str(val)
         elem.append(child)
     return elem
 
 def save_to_xml(data_frame, filepath):
     """
-    Функция для сохранения записей из DataFrame в XML с отступами.
-    Каждая запись будет отдельно сохранена в формате с отступами.
+    Сохраняет DataFrame в XML файл.
+    :param data_frame: DataFrame для сохранения
+    :param filepath: путь для сохранения XML
     """
-    for index, row in data_frame.iterrows():
+    root = ET.Element("dataset")  # Корневой элемент
+
+    for _, row in data_frame.iterrows():
         record_elem = dict_to_xml("record", row.to_dict())
+        root.append(record_elem)
 
-        # Создание дерева и форматирование через minidom
-        rough_string = ET.tostring(record_elem, 'utf-8')
-        reparsed = minidom.parseString(rough_string)
-        pretty_xml = reparsed.toprettyxml(indent="  ")
+    # Создание строки XML с форматированием
+    rough_string = ET.tostring(root, 'utf-8')
+    reparsed = minidom.parseString(rough_string)
+    pretty_xml = reparsed.toprettyxml(indent="  ")
 
-        # Открытие файла в режиме добавления
-        with open(filepath, 'a', encoding='utf-8') as f:
-            f.write(pretty_xml)
+    # Сохранение в файл
+    with open(filepath, 'w', encoding='utf-8') as f:
+        f.write(pretty_xml)
 
 
 if __name__ == "__main__":
     print(f"Введити количество записей: ", end="")
     n = int(input())
-    n = max(50_000, n)
+    n = max(5_0, n)
     get_bank()
     get_pay_system()
     f = time()
