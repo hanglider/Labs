@@ -209,7 +209,7 @@ def save_to_xml(data_frame, filepath):
 if __name__ == "__main__":
     print(f"Введити количество записей: ", end="")
     n = int(input())
-    n = max(5_0, n)
+    n = max(5_000, n)
     get_bank()
     get_pay_system()
     f = time()
