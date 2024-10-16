@@ -20,7 +20,6 @@ print("Сохранение датасета...")
 
 save_to_xml(data, 'C:/IT/Labs/Labs/waste/data_set_new.xml')
 print(data.head())
-peq
 
 # k = 10
 # quasi_identifiers = ['Passport_data']
