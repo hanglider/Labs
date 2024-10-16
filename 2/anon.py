@@ -1,6 +1,7 @@
 import pandas as pd
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as minidom
+import Firstnames
 
 def calculate_k_anonymity(data_frame, quasi_identifiers, k):
 
@@ -37,6 +38,49 @@ def mask_passport_data(data_frame):
     # Применяем функцию к столбцу Passport_data
     data_frame['Passport_data'] = data_frame['Passport_data'].apply(mask_field)
     return data_frame
+
+def mask_snils(data_frame):
+    # Функция для маскирования СНИЛСа
+    def mask_snils(snils):
+        # Заменяем все символы, кроме первой цифры, на '*'
+        return snils[0] + '*' * (len(snils) - 1)
+    
+    # Применяем функцию к столбцу с СНИЛСом
+    data_frame['snils'] = data_frame['snils'].apply(mask_snils)
+    return data_frame
+
+def anonymize_med_card(data_frame):
+    # Заменяем всё содержимое в 'med_card' на '*****'
+    data_frame['med_card'] = data_frame['med_card'].apply(lambda x: "*****")
+    return data_frame
+
+def find_worst_k_anonymity(data_frame):
+    # Группируем строки после обезличивания и считаем их частоту
+    grouped_counts = data_frame.groupby(list(data_frame.columns)).size()
+    
+    # Сортируем по возрастанию значений k-анонимности (меньшие значения k менее анонимны)
+    worst_k_values = grouped_counts.nsmallest(5)
+    
+    # Выводим результаты
+    for idx, (group, count) in enumerate(worst_k_values.items(), 1):
+        print(f"{idx}. Group: {group} - k-anonymity: {count}")
+    
+    return worst_k_values
+
+def anonymize_name_fields(data_frame, male_names=Firstnames.male_names, female_names=Firstnames.female_names):
+    def get_gender(firstname):
+        if firstname in male_names:
+            return "Мужчина"
+        elif firstname in female_names:
+            return "Женщина"
+        else:
+            return "Неизвестно"  # Если имя не найдено в обоих списках
+
+    # Заменяем поле Firstname на пол
+    data_frame['Firstname'] = data_frame['Firstname'].apply(get_gender)
+    # Заменяем поля Lastname и Patronymic на *****
+    data_frame['Lastname'] = '*****'
+    data_frame['Patronymic'] = '*****'
 
 def dict_to_xml(tag, d):
     elem = ET.Element(tag)
