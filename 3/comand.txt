@@ -1,0 +1,2 @@
+hashcat -m 0 -a 0 C:\IT\Labs\Labs\waste\hashes.txt C:\IT\Labs\Labs\waste\numbers.txt -o C:\IT\Labs\Labs\waste\cracked.txt
+hashcat -m 0 -O -a 3 C:\IT\Labs\Labs\waste\hashes.txt 89?d?d?d?d?d?d?d?d?d -o C:\IT\Labs\Labs\waste\cracked.txt
