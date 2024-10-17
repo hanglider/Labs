@@ -29,8 +29,8 @@ class ID:
             r = g.generate_snils()
         stack_uniqueness_for_snils.add(r)
         self.snils = r
-        #self.med_card = self.gen_history(x)
-        self.med_card = self.Medecine(x, None).__dict__
+        self.med_card = self.gen_history(x)
+        #self.med_card = self.Medecine(x, None).__dict__
 
     class Pasport:
         def __init__(self, country, series, number):
@@ -209,9 +209,9 @@ def save_to_xml(data_frame, filepath):
 
 if __name__ == "__main__":
     print(f"Введити количество записей: ", end="")
-    #n = int(input())
-    #n = max(5, n)
-    n = 50_000
+    n = int(input())
+    n = max(50, n)
+    #n = 50_000
     get_bank()
     get_pay_system()
     f = time()
