@@ -30,54 +30,66 @@ def xml_to_dataframe(filepath):
 
 def mask_passport_data(data_frame):
     def mask_field(passport_data):
-        # Заменяем содержимое на только страну
-        passport_dict = passport_data.split(',')  # Разделяем по запятой
-        country = [item for item in passport_dict if 'country' in item]  # Извлекаем страну
-        return f"{{{', '.join(country)}}}"  # Формируем строку только с страной
+        passport_dict = passport_data.split(',') 
+        country = [item for item in passport_dict if 'country' in item] 
+        return f"{{{', '.join(country)}}}"  
 
-    # Применяем функцию к столбцу Passport_data
     data_frame['Passport_data'] = data_frame['Passport_data'].apply(mask_field)
     return data_frame
 
-def anonymize_date_in_dataframe(data_frame):
-    def mask_field(passport_data):
-        # Заменяем содержимое на только страну
-        passport_dict = passport_data.split(',')  # Разделяем по запятой
-        country = [item for item in passport_dict if 'bank_card' in item]  # Извлекаем страну
-        return f"{{{', '.join(country)}}}"  # Формируем строку только с страной
-
-    # Применяем функцию к столбцу Passport_data
-    data_frame['med_card'] = data_frame['med_card'].apply(mask_field)
+def anonymize_date_in_dataframe(data_frame, key):
+    data_frame[key] = '2023'
     return data_frame
 
+def anonymize_payment_info(df):
+    df['bank_card_pay_system'] = '*****'
+    df['bank_card_number'] = '*****'
+    
+    return df
+
 def mask_snils(data_frame):
-    # Функция для маскирования СНИЛСа
     def mask_snils(snils):
-        # Заменяем все символы, кроме первой цифры, на '*'
         return snils[0] + '*' * (len(snils) - 1)
     
-    # Применяем функцию к столбцу с СНИЛСом
     data_frame['snils'] = data_frame['snils'].apply(mask_snils)
     return data_frame
 
 def anonymize_med_card(data_frame):
-    # Заменяем всё содержимое в 'med_card' на '*****'
     data_frame['med_card'] = data_frame['med_card'].apply(lambda x: "*****")
     return data_frame
 
+def remove_column(df, key):
+    df[key] = '*****'
+    return df
+
+def anonymize_total_analysis_cost(df):
+    # Функция для присвоения диапазона на основе стоимости
+    def cost_range(cost):
+        if int(cost) <= 2000:
+            return 'Low'
+        elif 2000 < int(cost) <= 4000:
+            return 'Medium'
+        else:
+            return 'High'
+    
+    # Применяем анонимизацию
+    df['total_analysis_cost'] = df['total_analysis_cost'].apply(cost_range)
+    return df
 
 def find_worst_k_anonymity(data_frame):
-    # Группируем строки после обезличивания и считаем их частоту
     grouped_counts = data_frame.groupby(list(data_frame.columns)).size()
     
-    # Сортируем по возрастанию значений k-анонимности (меньшие значения k менее анонимны)
     worst_k_values = grouped_counts.nsmallest(5)
     
-    # Выводим результаты
-    for idx, (group, count) in enumerate(worst_k_values.items(), 1):
-        print(f"{idx}. Group: {group} - k-anonymity: {count}")
+    total_count = len(data_frame)
     
-    return worst_k_values
+    res = []
+    for idx, (group, count) in enumerate(worst_k_values.items(), 1):
+        percent = (count / total_count) * 100
+        print(f"{idx}. - k-anonymity: {count} ({percent:.2f}%)")
+        res.append(count)
+    
+    return min(res) > 9 
 
 def anonymize_name_fields(data_frame, male_names=Firstnames.male_names, female_names=Firstnames.female_names):
     def get_gender(firstname):
@@ -85,12 +97,8 @@ def anonymize_name_fields(data_frame, male_names=Firstnames.male_names, female_n
             return "Мужчина"
         elif firstname in female_names:
             return "Женщина"
-        else:
-            return "Неизвестно"  # Если имя не найдено в обоих списках
 
-    # Заменяем поле Firstname на пол
     data_frame['Firstname'] = data_frame['Firstname'].apply(get_gender)
-    # Заменяем поля Lastname и Patronymic на *****
     data_frame['Lastname'] = '*****'
     data_frame['Patronymic'] = '*****'
 
