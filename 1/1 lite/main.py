@@ -16,6 +16,70 @@ banki = []
 pay_system = []
 const = 10*16
 
+# class ID:
+#     def __init__(self):        
+#         self.Firstname, self.Lastname, self.Patronymic = g.generate_name()
+#         x = self.Pasport(*g.generate_passport())
+#         while x in stack_uniqueness_for_passport_data:
+#             x = self.Pasport(*g.generate_passport())
+#         stack_uniqueness_for_passport_data.add(x)
+#         self.Passport_data = x.__dict__
+#         r = g.generate_snils()
+#         while r in stack_uniqueness_for_snils:
+#             r = g.generate_snils()
+#         stack_uniqueness_for_snils.add(r)
+#         self.snils = r
+#         self.med_card = self.med_card = self.Medecine(x, None).__dict__
+
+#     class Pasport:
+#         def __init__(self, country, series, number):
+#             self.country = country
+#             self.series = series
+#             self.number = number
+
+#     class Medecine:
+#         def __init__(self, passport, last_analysis_time=None):
+#             self.doctor = choice(list(doctors.doctor_symptoms.keys()))
+#             self.symptoms = sample(doctors.doctor_symptoms[self.doctor], r(1, 2))
+#             self.date, self.date_offset = g.generate_visit_time()
+
+#             if isinstance(self.date, str):
+#                 self.date = datetime.strptime(self.date, "%Y-%m-%d %H:%M")
+
+#             if isinstance(self.date_offset, str):
+#                 self.date_offset = datetime.strptime(self.date_offset, "%Y-%m-%d %H:%M")
+            
+#             if last_analysis_time:
+#                 min_visit_time = last_analysis_time + timedelta(hours=24)
+#                 if self.date < min_visit_time:
+#                     self.date = min_visit_time
+#             self.analyzes = g.generate_an()
+#             self.total_analysis_cost = sum(analyze[1] for analyze in self.analyzes)
+#             self.bank_card = self.Card(passport).__dict__  
+
+#         class Card:
+#             def __init__(self, passport):
+#                 self.pay_system = choice(pay_system)
+#                 self.bank = choice(banki)
+#                 self.bank_card_number = self.generate_bank_card_number(passport)
+
+#             def generate_bank_card_number(self, passport):
+#                 passport_data = f"{passport.series}{passport.number}"
+#                 hash_object = hashlib.sha256(passport_data.encode())
+#                 hash_hex = hash_object.hexdigest()
+#                 bank_card_number = int(hash_hex, 16) % const
+#                 return bank_card_number                
+
+#     def gen_history(self, passport):
+#         mc = []
+#         last_analysis_time = None
+#         visits = r(1, 6) #6
+#         for _ in range(visits):
+#             medicine_entry = self.Medecine(passport, last_analysis_time).__dict__
+#             mc.append(medicine_entry)            
+#             last_analysis_time = medicine_entry['date_offset'] 
+#         return mc 
+
 class ID:
     def __init__(self):        
         self.Firstname, self.Lastname, self.Patronymic = g.generate_name()
@@ -29,7 +93,17 @@ class ID:
             r = g.generate_snils()
         stack_uniqueness_for_snils.add(r)
         self.snils = r
-        self.med_card = self.gen_history(x)
+        med_card_instance = self.Medecine(x, None)
+        # Устанавливаем отдельные поля для каждого атрибута класса Medecine
+        self.doctor = med_card_instance.doctor
+        self.symptoms = med_card_instance.symptoms
+        self.date = med_card_instance.date
+        self.date_offset = med_card_instance.date_offset
+        self.analyzes = med_card_instance.analyzes
+        self.total_analysis_cost = med_card_instance.total_analysis_cost
+        self.bank_card_pay_system = med_card_instance.bank_card.pay_system
+        self.bank_card_bank = med_card_instance.bank_card.bank
+        self.bank_card_number = med_card_instance.bank_card.bank_card_number
 
     class Pasport:
         def __init__(self, country, series, number):
@@ -55,7 +129,7 @@ class ID:
                     self.date = min_visit_time
             self.analyzes = g.generate_an()
             self.total_analysis_cost = sum(analyze[1] for analyze in self.analyzes)
-            self.bank_card = self.Card(passport).__dict__  
+            self.bank_card = self.Card(passport)  # Экземпляр вложенного класса Card
 
         class Card:
             def __init__(self, passport):
@@ -67,18 +141,9 @@ class ID:
                 passport_data = f"{passport.series}{passport.number}"
                 hash_object = hashlib.sha256(passport_data.encode())
                 hash_hex = hash_object.hexdigest()
-                bank_card_number = int(hash_hex, 16) % const
-                return bank_card_number                
+                bank_card_number = str(int(hash_hex, 16))[:16] 
+                return bank_card_number
 
-    def gen_history(self, passport):
-        mc = []
-        last_analysis_time = None
-        visits = r(1, 6) #6
-        for _ in range(visits):
-            medicine_entry = self.Medecine(passport, last_analysis_time).__dict__
-            mc.append(medicine_entry)            
-            last_analysis_time = medicine_entry['date_offset'] 
-        return mc 
 
 def show_time(f):
     seconds = time() - f
@@ -128,48 +193,6 @@ def get_pay_system():
 
 import xml.dom.minidom as minidom
 
-# def dict_to_xml(tag, d):
-#     """
-#     Функция для конвертации словаря в XML.
-#     :param tag: корневой тег
-#     :param d: словарь с данными
-#     :return: элемент XML
-#     """
-#     elem = ET.Element(tag)
-#     for key, val in d.items():
-#         child = ET.Element(key)
-#         if isinstance(val, dict):
-#             child.extend(list(dict_to_xml(key, val)))
-#         elif isinstance(val, list):
-#             for item in val:
-#                 if isinstance(item, dict):
-#                     child.append(dict_to_xml(key, item))
-#                 else:
-#                     subitem = ET.Element("item")
-#                     subitem.text = str(item)
-#                     child.append(subitem)
-#         else:
-#             child.text = str(val)
-#         elem.append(child)
-#     return elem
-
-# def save_to_xml(data_frame, filepath):
-#     """
-#     Функция для сохранения записей из DataFrame в XML с отступами.
-#     Каждая запись будет отдельно сохранена в формате с отступами.
-#     """
-#     for index, row in data_frame.iterrows():
-#         record_elem = dict_to_xml("record", row.to_dict())
-
-#         # Создание дерева и форматирование через minidom
-#         rough_string = ET.tostring(record_elem, 'utf-8')
-#         reparsed = minidom.parseString(rough_string)
-#         pretty_xml = reparsed.toprettyxml(indent="  ")
-
-#         # Открытие файла в режиме добавления
-#         with open(filepath, 'a', encoding='utf-8') as f:
-#             f.write(pretty_xml)
-
 def dict_to_xml(tag, d):
     """
     Конвертирует словарь в XML.
@@ -208,8 +231,9 @@ def save_to_xml(data_frame, filepath):
 
 if __name__ == "__main__":
     print(f"Введити количество записей: ", end="")
-    n = int(input())
-    n = max(5_000, n)
+    #n = int(input())
+    #n = max(5_000, n)
+    n = 50
     get_bank()
     get_pay_system()
     f = time()
