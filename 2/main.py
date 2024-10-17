@@ -9,10 +9,12 @@ if input('Обезличить пасспортные данные [y/n]') == "y
     mask_passport_data(data)
 if input('Обезличить данные снилса [y/n]') == "y":
     mask_snils(data)
-if input('Обезличить медкарту [y/n]') == "y":
-    anonymize_med_card(data)
 if input('Обезличить ФИО [y/n]') == "y":
     anonymize_name_fields(data)
+if input('Обезличить дату визита [y/n]') == "y":
+    anonymize_date_in_dataframe(data)
+# if input('Обезличить медкарту [y/n]') == "y":
+#     anonymize_med_card(data)
 
 print(find_worst_k_anonymity(data))
 

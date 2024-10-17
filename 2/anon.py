@@ -39,6 +39,17 @@ def mask_passport_data(data_frame):
     data_frame['Passport_data'] = data_frame['Passport_data'].apply(mask_field)
     return data_frame
 
+def anonymize_date_in_dataframe(data_frame):
+    def mask_field(passport_data):
+        # Заменяем содержимое на только страну
+        passport_dict = passport_data.split(',')  # Разделяем по запятой
+        country = [item for item in passport_dict if 'bank_card' in item]  # Извлекаем страну
+        return f"{{{', '.join(country)}}}"  # Формируем строку только с страной
+
+    # Применяем функцию к столбцу Passport_data
+    data_frame['med_card'] = data_frame['med_card'].apply(mask_field)
+    return data_frame
+
 def mask_snils(data_frame):
     # Функция для маскирования СНИЛСа
     def mask_snils(snils):
@@ -53,6 +64,7 @@ def anonymize_med_card(data_frame):
     # Заменяем всё содержимое в 'med_card' на '*****'
     data_frame['med_card'] = data_frame['med_card'].apply(lambda x: "*****")
     return data_frame
+
 
 def find_worst_k_anonymity(data_frame):
     # Группируем строки после обезличивания и считаем их частоту
