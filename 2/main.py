@@ -3,7 +3,7 @@ from anon import *
 print("Чтение данных...")
 data = xml_to_dataframe('C:/IT/Labs/Labs/waste/data_set.xml')
 
-if input('Обезличить пасспортные данные [y/n]') == "y":
+if input('Обезличить паспортные данные [y/n]') == "y":
     mask_passport_data(data)
 if input('Обезличить данные снилса [y/n]') == "y":
     mask_snils(data)
@@ -30,6 +30,8 @@ print("Сохранение датасета...")
 
 save_to_xml(data, 'C:/IT/Labs/Labs/waste/data_set_new.xml')
 
+
+#По желанию
 # k = 10
 # quasi_identifiers = ['Passport_data']
 # is_k_anonymous = calculate_k_anonymity(data, quasi_identifiers, k)
