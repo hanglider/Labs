@@ -1,2 +1,10 @@
 hashcat -m 0 -a 0 C:\IT\Labs\Labs\waste\hashes.txt C:\IT\Labs\Labs\waste\numbers.txt -o C:\IT\Labs\Labs\waste\cracked.txt
 hashcat -m 0 -O -a 3 C:\IT\Labs\Labs\waste\hashes.txt 89?d?d?d?d?d?d?d?d?d -o C:\IT\Labs\Labs\waste\cracked.txt
+hashcat -m 0 -a 3 -w 3 C:\IT\Labs\Labs\waste\hashes.txt 89?d?d?d?d?d?d?d?d?d -o C:\IT\Labs\Labs\waste\cracked.txt
+hashcat -m 0 -a 3 -w 3 -S C:\IT\Labs\Labs\waste\hashes.txt 89?d?d?d?d?d?d?d?d?d -o C:\IT\Labs\Labs\waste\cracked.txt
+error hashcat -m 0 -a 3 --backend-ignore-cuda --opencl-device-types 1 --force -w 3 C:\IT\Labs\Labs\waste\hashes.txt 89?d?d?d?d?d?d?d?d?d -o C:\IT\Labs\Labs\waste\cracked.txt
+slowly hashcat -m 0 -a 3 --opencl-device-types 1 --force -w 3 C:\IT\Labs\Labs\waste\hashes.txt 89?d?d?d?d?d?d?d?d?d -o C:\IT\Labs\Labs\waste\cracked.txt
+slowly hashcat -m 0 -a 3 --opencl-device-types 2 -w 3 C:\IT\Labs\Labs\waste\hashes.txt 89?d?d?d?d?d?d?d?d?d -o C:\IT\Labs\Labs\waste\cracked.txt
+slowly hashcat -m 0 -a 3 -O --opencl-device-types 2 -w 3 C:\IT\Labs\Labs\waste\hashes.txt 89?d?d?d?d?d?d?d?d?d -o C:\IT\Labs\Labs\waste\cracked.txt
+hashcat -m 0 -a 3 -O --backend-devices=1 -w 3 C:\IT\Labs\Labs\waste\hashes.txt 89?d?d?d?d?d?d?d?d?d -o C:\IT\Labs\Labs\waste\cracked.txt
+hashcat -m 0 -a 3 -O --opencl-device-types 2 -w 3 C:\IT\Labs\Labs\waste\hashes.txt 89?d?d?d?d?d?d?d?d?d -o C:\IT\Labs\Labs\waste\cracked.txt
