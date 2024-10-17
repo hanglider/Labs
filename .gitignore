@@ -163,3 +163,4 @@ cython_debug/
 *.xlsx
 .vscode
 Labs/
+hashcat-6.2.6/
