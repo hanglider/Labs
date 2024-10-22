@@ -164,3 +164,4 @@ cython_debug/
 .vscode
 Labs/
 hashcat-6.2.6/
+.obsidian
