@@ -7,6 +7,7 @@ if input('Обезличить паспортные данные [y/n]') == "y":
     mask_passport_data(data)
 if input('Обезличить данные снилса [y/n]') == "y":
     mask_snils(data)
+    remove_column(data, 'snils')
 if input('Обезличить ФИО [y/n]') == "y":
     anonymize_name_fields(data)
 if input('Обезличить платежные данные [y/n]') == "y":
@@ -16,11 +17,11 @@ if input('Обезличить дату визита [y/n]') == "y":
 if input('Обезличить дату получения анализов [y/n]') == "y":
     anonymize_date_in_dataframe(data, 'date_offset')
 if input('Удалить данные анализов [y/n]') == "y":
-    remove_column(data, 'analyzes')
+    share(data, 'analyzes', 'group')
 if input('Удалить данные симптомов [y/n]') == "y":
-    remove_column(data, 'symptoms')
+    share(data, 'symptoms', 'list №')
 if input('Удалить данные врача [y/n]') == "y":
-    remove_column(data, 'doctor')
+    share(data, 'doctor', 'wing №')
 if input('Расщепить стоимость анализов [y/n]') == "y":
     anonymize_total_analysis_cost(data)
 

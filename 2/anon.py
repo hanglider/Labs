@@ -2,6 +2,7 @@ import pandas as pd
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as minidom
 import Firstnames
+import numpy as np
 
 def calculate_k_anonymity(data_frame, quasi_identifiers, k):
 
@@ -61,6 +62,12 @@ def anonymize_med_card(data_frame):
 def remove_column(df, key):
     df[key] = '*****'
     return df
+
+def share(data_frame, key, key_word):
+    x = np.random.randint(1, 4, size=len(data_frame))
+    from random import randint
+    x = [f'{key_word} {randint(1, 3)}' for _ in range(len(data_frame))]
+    data_frame[key] = x
 
 def anonymize_total_analysis_cost(df):
     # Функция для присвоения диапазона на основе стоимости
