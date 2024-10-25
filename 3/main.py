@@ -11,6 +11,17 @@ def hash_phone_numbers_sha1(phone_numbers):
         hashed_numbers.append(hashed_number)
     return hashed_numbers
 
+def hash_phone_numbers_sha1(phone_numbers):
+    hashed_numbers = []
+    for number in tqdm.tqdm(phone_numbers, desc="Hashing phone numbers (SHA1) with salt"):
+        salt = '13'#generate_salt()
+        number_with_salt = salt + number
+        number_bytes = number_with_salt.encode('utf-8')
+        hash_object = hashlib.sha1(number_bytes)
+        hashed_number = hash_object.hexdigest()  
+        hashed_numbers.append((salt, hashed_number))  # Сохраняем соль и хеш
+    return hashed_numbers
+
 def hash_strings_with_bcrypt(strings):
     hashed_strings = []
     for string in tqdm.tqdm(strings, desc="Hashing strings with bcrypt"):
@@ -19,6 +30,12 @@ def hash_strings_with_bcrypt(strings):
         hashed_strings.append(hashed_password.decode('utf-8'))
     
     return hashed_strings
+
+def generate_salt(length=8):
+    """Генерирует случайную строку заданной длины для использования в качестве соли."""
+    import random
+    import string
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
 def read_phone_numbers(file_path):
     with open(file_path, 'r') as file:
