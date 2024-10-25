@@ -3,7 +3,7 @@ phones = []
 for i in f.read().split():
     phones.append(int(i))
 
-results = open("C:/IT/Labs/Labs/waste/cracked1.txt").read().split()
+results = open("C:/IT/Labs/Labs/waste/cracked.txt").read().split()
 results= [int(i[-11:]) for i in results]
 for k in results:
     counter = 0
@@ -14,6 +14,6 @@ for k in results:
     if counter == len(phones):
         break
 print(salt)
-with open("C:/IT/Labs/Labs/waste/right_phones1.txt", 'w') as file:
+with open("C:/IT/Labs/Labs/waste/right_phones.txt", 'w') as file:
     for item in results:
         file.write(f"{item - salt}\n")
