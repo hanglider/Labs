@@ -9,7 +9,7 @@ def objective_function(x, y):
 # Функция для одноточечного кроссинговера
 def crossover(parent1, parent2):
     if random.random() < 0.5:
-        return (parent1[0], parent2[1])
+        return (parent1[0], parent2[1]) 
     else:
         return (parent2[0], parent1[1])
 
