@@ -21,7 +21,7 @@ def mutate(individual, mutation_rate):
     return x, y
 
 # Генетический алгоритм
-def run_generation(steps, only_crossover):
+def run_generation(steps, only_crossover, mutation_rate):
     global population, generation_count, best_value
     
     for _ in range(steps):
@@ -88,8 +88,9 @@ def draw_population(canvas, population):
 def run_step():
     try:
         steps = int(generations_entry.get())
+        mutation_rate = float(mutation_rate_entry.get())  # Получаем значение mutation_rate из поля ввода
         only_crossover = mode_var.get() == "Только кроссинговер"
-        run_generation(steps, only_crossover)
+        run_generation(steps, only_crossover, mutation_rate)
     except ValueError:
         pass  # Игнорируем ошибку, если введено не число
 
@@ -119,6 +120,12 @@ tk.Label(frame_params, text="Поколений за запуск:").grid(row=0,
 generations_entry = tk.Entry(frame_params, width=5)
 generations_entry.insert(0, "1")
 generations_entry.grid(row=0, column=2, padx=5, pady=5)
+
+# Поле для ввода значения mutation_rate
+tk.Label(frame_params, text="Коэффициент мутации:").grid(row=1, column=1, padx=5, pady=5)
+mutation_rate_entry = tk.Entry(frame_params, width=5)
+mutation_rate_entry.insert(0, str(mutation_rate))
+mutation_rate_entry.grid(row=1, column=2, padx=5, pady=5)
 
 # Метка для отображения лучшего значения
 best_value_label = tk.Label(root, text=f"Лучшее значение: {best_value}")
