@@ -9,7 +9,7 @@ def objective_function(x, y):
 # Функция для одноточечного кроссинговера
 def crossover(parent1, parent2):
     if random.random() < 0.5:
-        return (parent1[0], parent2[1])
+        return (parent1[0], parent2[1]) 
     else:
         return (parent2[0], parent1[1])
 
@@ -21,8 +21,8 @@ def mutate(individual, mutation_rate):
     return x, y
 
 # Генетический алгоритм
-def run_generation(steps, only_crossover):
-    global population, generation_count, best_value, best_accuracy
+def run_generation(steps, only_mutation, mutation_rate):
+    global population, generation_count, best_value
     
     for _ in range(steps):
         # Вычисление значений функции для популяции
@@ -32,8 +32,7 @@ def run_generation(steps, only_crossover):
         current_best_value = min(fitness_scores)
         if current_best_value < best_value:
             best_value = current_best_value
-            best_accuracy = abs(best_value)  # Используем модуль для точности
-            best_value_label.config(text=f"Лучшее значение: {round(best_value, 4)} (Точность: {round(best_accuracy, 4)})")
+            best_value_label.config(text=f"Лучшее значение: {round(best_value, 4)}")
 
         # Сортировка популяции по значению функции (от наименьшего к наибольшему)
         population = [population[i] for i in sorted(range(len(fitness_scores)), key=lambda k: fitness_scores[k])]
@@ -52,11 +51,12 @@ def run_generation(steps, only_crossover):
             child = crossover(parent1, parent2)
             children.append(child)
         
-        # Если режим не "только кроссинговер", выполняем мутацию
-        if not only_crossover:
-            population = [mutate(ind, mutation_rate) for ind in children]
+        # Если режим "только мутация", выполняем мутацию без кроссинговера
+        if only_mutation:
+            population = [mutate(ind, mutation_rate) for ind in population]
         else:
-            population = children  # Используем потомков без мутации
+            # В режиме "мутация + кроссинговер" выполняем мутацию для потомков
+            population = [mutate(ind, mutation_rate) for ind in children]
         
         # Обновление поколения
         generation_count += 1
@@ -75,33 +75,32 @@ def update_table(population):
 # Функция для рисования популяции на Canvas
 def draw_population(canvas, population):
     canvas.delete("all")
-    canvas.create_line(150, 0, 150, 300, fill="gray")  # ось Y (сдвинута к центру)
-    canvas.create_line(0, 150, 300, 150, fill="gray")  # ось X (сдвинута к центру)
-
-    scale = 14  # Уменьшил масштабирование
+    canvas.create_line(200, 0, 200, 400, fill="gray")  # ось Y
+    canvas.create_line(0, 200, 400, 200, fill="gray")  # ось X
+    
+    scale = 19
 
     for x, y in population:
-        canvas_x = 150 + x * scale  # Масштабирование для визуализации
-        canvas_y = 150 - y * scale  # Инвертируем для правильного отображения осей
+        canvas_x = 200 + x * scale  # Масштабирование для визуализации
+        canvas_y = 200 - y * scale  # Инвертируем для правильного отображения осей
         canvas.create_oval(canvas_x-3, canvas_y-3, canvas_x+3, canvas_y+3, fill="blue")
-
 
 # Запуск алгоритма на определенное количество поколений
 def run_step():
     try:
         steps = int(generations_entry.get())
-        only_crossover = mode_var.get() == "Только кроссинговер"
-        run_generation(steps, only_crossover)
+        mutation_rate = float(mutation_rate_entry.get())  # Получаем значение mutation_rate из поля ввода
+        only_mutation = mode_var.get() == "Только мутация"
+        run_generation(steps, only_mutation, mutation_rate)
     except ValueError:
         pass  # Игнорируем ошибку, если введено не число
 
 # Инициализация начальных параметров
-population_size = 2000
-mutation_rate = 0.1
+population_size = 300
+mutation_rate = 0.01
 population = [(random.uniform(-10, 10), random.uniform(-10, 10)) for _ in range(population_size)]
 generation_count = 1
 best_value = float('inf')
-best_accuracy = 0.0
 
 # Создание интерфейса
 root = tk.Tk()
@@ -123,14 +122,20 @@ generations_entry = tk.Entry(frame_params, width=5)
 generations_entry.insert(0, "1")
 generations_entry.grid(row=0, column=2, padx=5, pady=5)
 
-# Метка для отображения лучшего значения и точности
-best_value_label = tk.Label(root, text=f"Лучшее значение: {best_value} (Точность: {best_accuracy})")
+# Поле для ввода значения mutation_rate
+tk.Label(frame_params, text="Коэффициент мутации:").grid(row=1, column=1, padx=5, pady=5)
+mutation_rate_entry = tk.Entry(frame_params, width=5)
+mutation_rate_entry.insert(0, str(mutation_rate))
+mutation_rate_entry.grid(row=1, column=2, padx=5, pady=5)
+
+# Метка для отображения лучшего значения
+best_value_label = tk.Label(root, text=f"Лучшее значение: {best_value}")
 best_value_label.grid(row=2, column=0, padx=10, pady=5, sticky="w")
 
 # Переключатель для выбора режима
-mode_var = tk.StringVar(value="С кроссинговером и мутацией")
-tk.Radiobutton(frame_params, text="С кроссинговером и мутацией", variable=mode_var, value="С кроссинговером и мутацией").grid(row=0, column=5, padx=5, pady=5)
-tk.Radiobutton(frame_params, text="Только кроссинговер", variable=mode_var, value="Только кроссинговер").grid(row=0, column=6, padx=5, pady=5)
+mode_var = tk.StringVar(value="Мутация + кроссинговер")
+tk.Radiobutton(frame_params, text="Мутация + кроссинговер", variable=mode_var, value="Мутация + кроссинговер").grid(row=0, column=5, padx=5, pady=5)
+tk.Radiobutton(frame_params, text="Только мутация", variable=mode_var, value="Только мутация").grid(row=0, column=6, padx=5, pady=5)
 
 # Таблица для отображения хромосом
 table_frame = tk.Frame(root)
@@ -144,9 +149,8 @@ table.heading("Значение функции", text="Значение функ
 table.grid(row=0, column=0, sticky="nsew")
 
 # Полотно для отображения графика
-population_canvas = tk.Canvas(root, width=300, height=300, bg="white")  # Уменьшил размеры до 300x300
+population_canvas = tk.Canvas(root, width=400, height=400, bg="white")
 population_canvas.grid(row=1, column=1, padx=10, pady=10)
-
 
 # Первоначальное заполнение таблицы и графика
 update_table(population)
