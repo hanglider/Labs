@@ -49,7 +49,9 @@ class PSO:
         self.c1 = c1
         self.c2 = c2
         self.iterations = iterations
+        self.max_velocity = max_velocity
         self.adaptive_speed = adaptive_speed
+        self.best_value_history = []  # Для отслеживания изменения лучшего значения
 
     def reset_particles(self):
         for particle in self.particles:
@@ -67,7 +69,16 @@ class PSO:
                 self.global_best_position = particle.best_position[:]
 
         if self.adaptive_speed:
-            self.w = 0.2#max(0.1, self.w * 0.95)
+            # Динамическое изменение инерции на основе улучшений
+            self.best_value_history.append(self.global_best_value)
+            if len(self.best_value_history) > 1:
+                improvement_rate = (self.best_value_history[-2] - self.best_value_history[-1]) / self.best_value_history[-2]
+                if improvement_rate > 0.05:  # Если улучшение выше 5%
+                    self.w *= 0.9  # Уменьшаем инерцию быстрее
+                else:
+                    self.w *= 0.99  # Замедляем снижение инерции
+
+                self.w = max(0.1, self.w)  # Ограничение снижения инерции
 
     def run(self):
         for _ in range(self.iterations):
@@ -153,11 +164,6 @@ class PSOApp:
             x_canvas = 300 + particle.position[0] * 10  # Увеличен масштаб
             y_canvas = 300 - particle.position[1] * 10  # Увеличен масштаб
             self.canvas.create_oval(x_canvas-3, y_canvas-3, x_canvas+3, y_canvas+3, fill="blue")
-            
-        global_best_x, global_best_y = self.pso.global_best_position
-        x_canvas = 300 + global_best_x * 10  # Увеличен масштаб
-        y_canvas = 300 - global_best_y * 10  # Увеличен масштаб
-        self.canvas.create_oval(x_canvas-6, y_canvas-6, x_canvas+6, y_canvas+6, fill="red")
 
 if __name__ == "__main__":
     root = tk.Tk()
