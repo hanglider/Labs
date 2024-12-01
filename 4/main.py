@@ -6,12 +6,19 @@ import random
 def objective_function(x, y):
     return x**2 + 3 * y**2 + 2 * x * y
 
-# Функция для одноточечного кроссинговера
+# Базовый кроссинговер (обычный)
 def crossover(parent1, parent2):
     if random.random() < 0.5:
         return (parent1[0], parent2[1]) 
     else:
         return (parent2[0], parent1[1])
+
+# Улучшенный кроссинговер
+def enhanced_crossover(parent1, parent2):
+    # Усредняем значения, чтобы получить более сбалансированного потомка
+    child_x = (parent1[0] + parent2[0]) / 2 + random.uniform(-1, 1)
+    child_y = (parent1[1] + parent2[1]) / 2 + random.uniform(-1, 1)
+    return child_x, child_y
 
 # Функция для мутации
 def mutate(individual, mutation_rate):
@@ -21,7 +28,7 @@ def mutate(individual, mutation_rate):
     return x, y
 
 # Генетический алгоритм
-def run_generation(steps, only_crossover):
+def run_generation(steps, mode, mutation_rate):
     global population, generation_count, best_value
     
     for _ in range(steps):
@@ -44,18 +51,18 @@ def run_generation(steps, only_crossover):
         # Отбор: выбираем 50% лучших
         selected = population[:len(population) // 2]
         
-        # Кроссинговер: создаем новое поколение
+        # Кроссинговер: создаем новое поколение в зависимости от режима
         children = []
         while len(children) < len(population):
             parent1, parent2 = random.sample(selected, 2)
-            child = crossover(parent1, parent2)
+            if mode == "lite":
+                child = crossover(parent1, parent2)
+            elif mode == "pro":
+                child = enhanced_crossover(parent1, parent2)
             children.append(child)
         
-        # Если режим не "только кроссинговер", выполняем мутацию
-        if not only_crossover:
-            population = [mutate(ind, mutation_rate) for ind in children]
-        else:
-            population = children  # Используем потомков без мутации
+        # Мутация для потомков
+        population = [mutate(ind, mutation_rate) for ind in children]
         
         # Обновление поколения
         generation_count += 1
@@ -88,13 +95,14 @@ def draw_population(canvas, population):
 def run_step():
     try:
         steps = int(generations_entry.get())
-        only_crossover = mode_var.get() == "Только кроссинговер"
-        run_generation(steps, only_crossover)
+        mutation_rate = float(mutation_rate_entry.get())
+        mode = mode_var.get()
+        run_generation(steps, mode, mutation_rate)
     except ValueError:
         pass  # Игнорируем ошибку, если введено не число
 
 # Инициализация начальных параметров
-population_size = 500
+population_size = 300
 mutation_rate = 0.01
 population = [(random.uniform(-10, 10), random.uniform(-10, 10)) for _ in range(population_size)]
 generation_count = 1
@@ -120,14 +128,20 @@ generations_entry = tk.Entry(frame_params, width=5)
 generations_entry.insert(0, "1")
 generations_entry.grid(row=0, column=2, padx=5, pady=5)
 
+# Поле для ввода значения mutation_rate
+tk.Label(frame_params, text="Коэффициент мутации:").grid(row=1, column=1, padx=5, pady=5)
+mutation_rate_entry = tk.Entry(frame_params, width=5)
+mutation_rate_entry.insert(0, str(mutation_rate))
+mutation_rate_entry.grid(row=1, column=2, padx=5, pady=5)
+
 # Метка для отображения лучшего значения
 best_value_label = tk.Label(root, text=f"Лучшее значение: {best_value}")
 best_value_label.grid(row=2, column=0, padx=10, pady=5, sticky="w")
 
 # Переключатель для выбора режима
-mode_var = tk.StringVar(value="С кроссинговером и мутацией")
-tk.Radiobutton(frame_params, text="С кроссинговером и мутацией", variable=mode_var, value="С кроссинговером и мутацией").grid(row=0, column=5, padx=5, pady=5)
-tk.Radiobutton(frame_params, text="Только кроссинговер", variable=mode_var, value="Только кроссинговер").grid(row=0, column=6, padx=5, pady=5)
+mode_var = tk.StringVar(value="lite")
+tk.Radiobutton(frame_params, text="Lite (Мутация + кроссинговер)", variable=mode_var, value="lite").grid(row=0, column=5, padx=5, pady=5)
+tk.Radiobutton(frame_params, text="Pro (Мутация + улучшенный кроссинговер)", variable=mode_var, value="pro").grid(row=0, column=6, padx=5, pady=5)
 
 # Таблица для отображения хромосом
 table_frame = tk.Frame(root)
